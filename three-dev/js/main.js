@@ -6,6 +6,7 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 let camera, scene, renderer, controls;
 let lightBulbModel;
 let vk2SceneModel;
+let barrelModel;
 
 init();
 
@@ -14,6 +15,18 @@ function init() {
   document.body.appendChild(container);
   const loadingManager = new THREE.LoadingManager();
   loadingManager.onLoad = function () {
+    const box = new THREE.Box3().setFromObject(scene);
+    const boxCenter = box.getCenter(new THREE.Vector3());
+    const boxSize = box.getSize(new THREE.Vector3());
+  
+    controls.target.copy(boxCenter);
+    camera.position.set(
+      boxCenter.x + boxSize.x,
+      boxCenter.y + boxSize.y,
+      boxCenter.z + boxSize.z
+    );
+    controls.update();
+
     render();
     animate();
   };
@@ -40,7 +53,7 @@ function init() {
       );
       controls.update();
     });
-    loader.load('/lightBulbModel/lightbulb_led_2k.gltf', function (gltf) {
+    loader.load('lightBulbModel/lightbulb_led_2k.gltf', function (gltf) {
       lightBulbModel = gltf.scene;
       const box = new THREE.Box3().setFromObject(lightBulbModel);
       const boxCenter = box.getCenter(new THREE.Vector3());
@@ -50,6 +63,26 @@ function init() {
       lightBulbModel.position.y += 5; 
       lightBulbModel.scale.set(150, 150, 150);
       scene.add(lightBulbModel);
+      controls.target.copy(boxCenter);
+      camera.position.set(
+        boxCenter.x + boxSize.x,
+        boxCenter.y + boxSize.y,
+        boxCenter.z + boxSize.z
+      );
+      controls.update();
+    });
+    // barell
+    loader.load('barrel.glb', function (gltf) {
+      barrelModel = gltf.scene;
+      const box = new THREE.Box3().setFromObject(barrelModel);
+      const boxCenter = box.getCenter(new THREE.Vector3());
+      const boxSize = box.getSize(new THREE.Vector3());
+      barrelModel.position.sub(boxCenter);
+      barrelModel.position.x += -45;
+      barrelModel.position.y += -4;
+      barrelModel.position.z += 20;
+      barrelModel.scale.set(10, 10, 10);
+      scene.add(barrelModel);
       controls.target.copy(boxCenter);
       camera.position.set(
         boxCenter.x + boxSize.x,
